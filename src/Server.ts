@@ -10,6 +10,6 @@ export class Server {
     }
 
     start() {
-        this.app.listen(3030);
+        this.app.listen(3030, () => console.log("Running"));
     }
 }
