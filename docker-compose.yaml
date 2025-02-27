@@ -1,13 +1,16 @@
 version: "3.5"
 services:
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
       - "5672:5672"
+      - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: rabbit
-      RABBITMQ_DEFAULT_PASS: rabbit
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+        - sd-consumer
   mongo:
     image: mongo
     container_name: mongo
@@ -17,6 +20,22 @@ services:
       MONGO_INITDB_ROOT_USERNAME: sd.consumer
       MONGO_INITDB_ROOT_PASSWORD: 123
       MONGO_INITDB_DATABASE: messages
+    networks:
+      - sd-consumer
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://sd.consumer:123@mongo:27017/messages?authSource=admin
+      ME_CONFIG_BASICAUTH_USERNAME: Sduser
+      ME_CONFIG_BASICAUTH_PASSWORD: 1234!
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: false
+    networks:
+      - sd-consumer
+    depends_on:
+      - mongo
   app:
     build: .
     environment:
@@ -26,6 +45,8 @@ services:
       MONGO_USER: sd.consumer
       MONGO_PASS: 123
       RABBITMQ_URL: amqp://rabbitmq
+    networks:
+        - sd-consumer
     ports:
       - 3030:3030
     volumes: 
@@ -34,3 +55,6 @@ services:
       - mongo
     depends_on:
       - mongo
+networks:
+  sd-consumer:
+    driver: bridge

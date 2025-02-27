@@ -8,6 +8,8 @@ const { MONGO_USER, MONGO_PASS, MONGO_HOST, MONGO_PORT, MONGO_NAME } = process.e
 
 const connectionUri = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_NAME}?authSource=admin`;
 
+console.log(connectionUri)
+
 mongoose.connect(connectionUri).then(() => {
     const server = new Server();
     server.start();
